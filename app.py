@@ -19,7 +19,7 @@ def predict(model, input_data):
     return prediction[0]
 
 # Tampilkan judul aplikasi
-st.title('SapuJagad V1 Socket : 87')
+st.title('SapuJagad V1 Socket : 89')
 st.title('Aplikasi Prediksi Curah Hujan')
 
 # Memuat model
