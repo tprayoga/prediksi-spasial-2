@@ -1,8 +1,9 @@
 import streamlit as st
 import pickle
 import numpy as np
+import pandas as pd
 
-# # Fungsi untuk memuat model dari file pickle
+# Fungsi untuk memuat model dari file pickle
 def load_model():
     try:
         with open('model_RF_v2.pkl', 'rb') as file:
@@ -11,12 +12,6 @@ def load_model():
     except Exception as e:
         st.error(f'Error loading model: {e}')
         return None
-
-# Fungsi untuk melakukan prediksi
-def predict(model, input_data):
-    input_array = np.array(input_data).reshape(1, -1)
-    prediction = model.predict(input_array)
-    return prediction[0]
 
 # Tampilkan judul aplikasi
 st.title('SapuJagad V1 Socket : 89 ')
@@ -42,46 +37,57 @@ result_value = district_values[district]
 st.write(f"The corresponding value for {district} is: {result_value}")
 
 if model is not None:
-# Tombol untuk melakukan prediksi
+    # Tombol untuk melakukan prediksi
     if st.button('Prediksi'):
-        # Masukkan variabel input ke dalam list
-        input_data = [suhu_titik_embun, kelembapan, suhu, evaporasi, result_value ]
-        hasil_prediksi = predict(model, input_data)
-        if hasil_prediksi < 5 :
-            st.subheader("Hujan sangat ringan")
-            st.success(f'Hasil prediksi:  {hasil_prediksi}')
-        elif 5 <= hasil_prediksi <= 20:
-            st.subheader("Hujan ringan")
-            st.success(f'Hasil prediksi:  {hasil_prediksi}')
-        elif 20 <= hasil_prediksi <= 50 : 
-            st.subheader("Hujan sedang")
-            st.success(f'Hasil prediksi:  {hasil_prediksi}')
-        elif 51 <= hasil_prediksi <= 100 : 
-            st.subheader("Hujan lebat")
-        else : 
-            st.subheader("Hujan sangat lebat")           
-            st.success(f'Hasil prediksi: {hasil_prediksi}')
+        # Masukkan variabel input ke dalam dictionary
+        input_df = pd.DataFrame({
+        'suhutitikembun': [suhu_titik_embun],
+        'suhu': [suhu],
+        'evaporasi': [evaporasi],
+        'kelembapan': [kelembapan],
+        'district': result_value 
+        })
+        prediction = model.predict(input_df)
+        hasil_prediksi =  prediction[0]
 
-        st.header("Prediski wilayah lain")
+        if hasil_prediksi < 5:
+            st.subheader(f"Hujan sangat ringan di daerah {district}")
+        elif 5 <= hasil_prediksi <= 20:
+            st.subheader(f"Hujan ringan di daerah {district}")
+        elif 20 <= hasil_prediksi <= 50: 
+            st.subheader(f"Hujan sedang di daerah {district}")
+        elif 51 <= hasil_prediksi <= 100: 
+            st.subheader(f"Hujan lebat di daerah {district}")
+        else: 
+            st.subheader("Hujan sangat lebat")
+        st.success(f'Hasil prediksi:  {hasil_prediksi}')
+
+        st.header("Prediksi wilayah lain :")
         for other_district, value in district_values.items():
             if other_district != district:
-                input_data_2 = [suhu_titik_embun, kelembapan, suhu, evaporasi, value ]
+                input_df_2 = pd.DataFrame({
+                'suhutitikembun': [suhu_titik_embun],
+                'suhu': [suhu],
+                'evaporasi': [evaporasi],
+                'kelembapan': [kelembapan],
+                'district': value 
+                })
+                st.text(value)
+                prediction_2 = model.predict(input_df_2)
+                hasil_prediksi_2 =  prediction_2[0]
                 # Lakukan prediksi
-                hasil_prediksi_2 = predict(model,input_data_2)
-                if hasil_prediksi_2 < 5 :
+                if hasil_prediksi_2 < 5:
                     st.subheader(f"Hujan sangat ringan kota {other_district}")
-                    st.success(f'Hasil prediksi  {hasil_prediksi_2}')
-                elif 5 <= hasil_prediksi <= 20 or 5 <= hasil_prediksi_2 <= 20 :
+                elif 5 <= hasil_prediksi_2 <= 20:
                     st.subheader(f"Hujan ringan kota {other_district}")
-                    st.success(f'Hasil prediksi  {hasil_prediksi_2}')
-                elif 20 <= hasil_prediksi <= 50 or 20 <= hasil_prediksi_2 <= 50: 
+                elif 20 <= hasil_prediksi_2 <= 50: 
                     st.subheader(f"Hujan sedang kota {other_district}")
-                    st.success(f'Hasil prediksi  {hasil_prediksi_2}')
-                elif 51 <= hasil_prediksi <= 100 : 
+                elif 51 <= hasil_prediksi_2 <= 100: 
                     st.subheader(f"Hujan lebat kota {other_district}")
-                    st.success(f'Hasil prediksi  {hasil_prediksi_2}')
-                else : 
-                    st.subheader(f"Hujan sangat lebat kota {other_district}")           
-                    st.success(f'Hasil prediksi  {hasil_prediksi_2}')
-else :
-    st.text("belum ada library")        
+                else: 
+                    st.subheader(f"Hujan sangat lebat kota {other_district}")
+                    
+                st.success(f'Hasil prediksi  {hasil_prediksi_2}')
+else:
+    st.text("Belum ada library")
+
