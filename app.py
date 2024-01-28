@@ -14,8 +14,8 @@ def load_model():
         return None
 
 # Tampilkan judul aplikasi
-st.title('SapuJagad V1 Socket : 89 ')
-st.subheader('Aplikasi prediksi curah hujan daerah Wamena, Cengkareng, Termindung')
+st.title('SapuJagad POC BMKG ')
+st.subheader(' Prediksi curah hujan daerah Wamena, Cengkareng, Termindung')
 
 # Memuat model
 model = load_model()
